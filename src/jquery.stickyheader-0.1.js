@@ -13,10 +13,7 @@
         placeholderClass: 'sticky-placeholder',
         activeClass: 'sticky-active',
         activeBottomClass: 'sticky-active-bottom',
-        topOffset: 0,
-        bottomOffset: 0,
-        stickyLeft: 0,
-        stickyRight: 0
+        inactiveClass: 'sticky-inactive'
     };
     
     $.fn.stickyHeader = function (options) {
@@ -28,20 +25,11 @@
             allStickyList.add(sticky);
         });
         
-        $(window).scroll(onScroll);        
+        $(window).scroll(onScroll);
         $(window).resize(onScroll);
+        $(document).on('touchmove', onScroll);
         onScroll();
         setTimeout(onScroll, 50);
-    };
-    
-    function getValue(arg) {
-        if (typeof arg === 'function') {
-            return getValue(arg());
-        } else if (typeof arg === 'string') {
-            return parseFloat(arg);
-        } else {
-            return arg;
-        }
     };
     
     function Sticky($elem, options) {
@@ -52,7 +40,6 @@
             $c = $('body');
         }
         $c.css({ position: 'relative' });
-        console.log(stickyTag);
         var $p = function() {
             return $('<div />')
                 .addClass(options.placeholderClass)
@@ -68,12 +55,11 @@
         }();
         
         var cBottom = function() {
-            return $c.offset().top + $c.outerHeight() - getValue(options.bottomOffset)
+            return $c.offset().top + $c.outerHeight();
         };
         
         var updatePlaceholder = function() {
             $p.css({
-                'width': $elem.outerWidth(true),
                 'height': $elem.outerHeight(true)
             });
         };
@@ -94,6 +80,14 @@
             showPlaceholder: function() {
                 updatePlaceholder();
                 $p.show();
+            },
+            placeholderBounds: function() {
+                var off = $p.offset();
+                return {
+                    left: off.left,
+                    top: off.top,
+                    width: $p.outerWidth()
+                };
             },
             anchorTop: function() {
                 return $a.offset().top;
@@ -173,15 +167,21 @@
             return total;
         };
         list.applyStyle = function(sticky) {
-            sticky.element().css({
-                'position': 'fixed',
-                'top': getValue(sticky.options().topOffset) + this.getTopOffset(sticky),
-                'bottom': 'auto',
-                'left': getValue(sticky.options().stickyLeft),
-                'right': getValue(sticky.options().stickyRight),
-                'z-index': 500
-            }).addClass(sticky.options().activeClass);
             sticky.showPlaceholder();
+            var bounds = sticky.placeholderBounds();
+            sticky.element()
+                .css({
+                    'position': 'fixed',
+                    'top': this.getTopOffset(sticky),
+                    'bottom': 'auto',
+                    'left': bounds.left,
+                    'right': '',
+                    'width': bounds.width,
+                    'z-index': 500
+                })
+                .addClass(sticky.options().activeClass)
+                .removeClass(sticky.options().removeClass)
+            ;
         };
         return list;
     }();
@@ -209,15 +209,21 @@
             return total;
         };
         list.applyStyle = function(sticky) {
-            sticky.element().css({
-                'position': 'absolute',
-                'top': 'auto',
-                'bottom': getValue(sticky.options().bottomOffset) + this.getBottomOffset(sticky),
-                'left': 0,
-                'right': 0,
-                'z-index': 200
-            }).addClass(sticky.options().activeClass);
             sticky.showPlaceholder();
+            var bounds = sticky.placeholderBounds();
+            sticky.element()
+                .css({
+                    'position': 'absolute',
+                    'top': 'auto',
+                    'bottom': this.getBottomOffset(sticky),
+                    'left': 0,
+                    'right': 0,
+                    'width': '',
+                    'z-index': 200
+                })
+                .addClass(sticky.options().activeClass)
+                .removeClass(sticky.options().inactiveClass)
+            ;
         };
         return list;
     }();
@@ -225,14 +231,19 @@
     var waitList = function() {
         var list = StickyList();
         list.applyStyle = function(sticky) {
-            sticky.element().css({
-                'position': 'static',
-                'top': '',
-                'bottom': '',
-                'left': '',
-                'right': '',
-                'z-index': ''
-            }).removeClass(sticky.options().activeClass);
+            sticky.element()
+                .css({
+                    'position': 'static',
+                    'top': '',
+                    'bottom': '',
+                    'left': '',
+                    'right': '',
+                    'width': '',
+                    'z-index': ''
+                })
+                .removeClass(sticky.options().activeClass)
+                .addClass(sticky.options().inactiveClass)
+            ;
             sticky.hidePlaceholder();
         };
         return list;
@@ -332,4 +343,4 @@
         }
     };
 
-})(jQuery, window);
+})(jQuery, window, document);
