@@ -1,0 +1,27 @@
+body {
+    font-family: 'Cabin', Verdana, sans-serif;
+    color: #666;
+    text-shadow: 0 1px 0 #fff;
+    background-color: floralwhite;
+    padding: 0 12px;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Crimson-Text', Georgia, serif;
+    color: #333;
+    background-color: floralwhite;
+    margin: 0;
+    padding: 8px 0;
+}
+
+h1 {
+    padding: 48px 0 24px 0;
+}
+
+.sticky-container {
+    padding-left: 20px;
+}
+
+.sticky-active-bottom {
+    border-bottom: solid 1px rgba(80, 80, 80, 0.2);
+}
