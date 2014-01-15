@@ -42,10 +42,12 @@
         if (!$c.length) {
             $c = $('body');
         }
-        $c.css({
-            //position: 'relative',   // make it a container for fixed positioning
-            //overflow: 'auto'        // need to disable margin collapsing
-        });
+
+        // Don't make any modifications to the container
+        //$c.css({
+        //    position: 'relative',   // make it a container for fixed positioning
+        //    overflow: 'auto'        // disables margin collapsing
+        //});
 
         var $p = this._$p = function() {
             return $elem.clone()
@@ -99,17 +101,17 @@
     function StickyList() {
         var list = this._list = [];
         list.contains = function(sticky) {
-            return list.indexOf(sticky) !== -1;
+            return this.indexOf(sticky) !== -1;
         };
         list.remove = function(sticky) {
-            var idx = list.indexOf(sticky);
+            var idx = this.indexOf(sticky);
             if (idx !== -1) {
-                list.splice(idx, 1);
+                this.splice(idx, 1);
             }
         };
         list.sortByAnchorTop = function() {
-            list.sort(function(sticky1, sticky2) {
-                return (sticky1.anchorTop() > sticky2.anchorTop());
+            this.sort(function(sticky1, sticky2) {
+                return sticky1.anchorTop() > sticky2.anchorTop() ? 1 : -1;
             });
         };
     }
